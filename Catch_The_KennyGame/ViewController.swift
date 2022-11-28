@@ -13,6 +13,8 @@ class ViewController: UIViewController {
     var timer = Timer()
     var counter = 0
     var KennyArray = [UIImageView]()
+    var hideTimer = Timer()
+    var HighScore = 0
     
     //Views
     @IBOutlet weak var TimeLabel: UILabel!
@@ -33,6 +35,19 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         ScoreLabel.text = "Score: \(score)"
+        
+        // Highscore Check
+        let storedHighScore = UserDefaults.standard.object(forKey: "highscore")
+        
+        if storedHighScore==nil {
+            HighScore=0
+            HighScoreLabel.text = "HighScore: \(HighScore)"
+        }
+        if let newScore = storedHighScore as? Int {
+            HighScore = newScore
+            HighScoreLabel.text = "HighScore: \(HighScore)"
+        }
+        
         
         //Images
         Kenny1.isUserInteractionEnabled = true
@@ -70,21 +85,25 @@ class ViewController: UIViewController {
         
         KennyArray = [Kenny1,Kenny2,Kenny3,Kenny4,Kenny5,Kenny6,Kenny7,Kenny8,Kenny9]
         
+        
         //Timers
         counter = 10
         TimeLabel.text = String(counter)
+        
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
+        hideTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(hideKenny), userInfo: nil, repeats: true)
         
         hideKenny()
         
     }
     
-    func hideKenny(){
+    @objc func hideKenny(){
         for kenny in KennyArray {
             kenny.isHidden = true
         }
         
-        arc4random_uniform(UInt32(KennyArray.count))
+        let random = Int(arc4random_uniform(UInt32(KennyArray.count - 1)))
+        KennyArray[random].isHidden = false
         
         
         
@@ -99,7 +118,21 @@ class ViewController: UIViewController {
         counter -= 1
         TimeLabel.text = String(counter)
         if counter==0{
+            hideTimer.invalidate()
             timer.invalidate()
+            
+            for kenny in KennyArray {
+                kenny.isHidden = true
+            }
+            
+            
+            //HighScore
+            if self.score > self.HighScore{
+                self.HighScore = self.score
+                HighScoreLabel.text = "Highscore: \(self.HighScore)"
+                UserDefaults.standard.set(self.HighScore, forKey: "highscore")
+            }
+            
             
             //Alert
             let alert = UIAlertController(title: "Time's Up", message: "Do you want to Play again?", preferredStyle: UIAlertController.Style.alert)
@@ -107,6 +140,15 @@ class ViewController: UIViewController {
             let replayButton = UIAlertAction(title: "Replay", style: UIAlertAction.Style.default){
                 (UIAlertAction) in
                 //reply function
+                
+                self.score = 0
+                self.ScoreLabel.text = "Score: \(self.score)"
+                self.counter = 10
+                self.TimeLabel.text = String(self.counter)
+                
+                self.timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
+                self.hideTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(self.hideKenny), userInfo: nil, repeats: true)
+                
                 
             }
             alert.addAction(okButton)
