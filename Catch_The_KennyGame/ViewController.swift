@@ -87,7 +87,7 @@ class ViewController: UIViewController {
         
         
         //Timers
-        counter = 10
+        counter = 15
         TimeLabel.text = String(counter)
         
         timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
@@ -143,7 +143,7 @@ class ViewController: UIViewController {
                 
                 self.score = 0
                 self.ScoreLabel.text = "Score: \(self.score)"
-                self.counter = 10
+                self.counter = 15
                 self.TimeLabel.text = String(self.counter)
                 
                 self.timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.countDown), userInfo: nil, repeats: true)
